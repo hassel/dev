@@ -74,8 +74,8 @@ fi
 
 ## Send files to remote dst & create md5 checksum
 cd $WORK_DIR && $MD5 backup.$TODAY.$RND.tar.gz > backup.$TODAY.$RND.tar.gz.md5
-$SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz $USER@$DST:$DST_PATH
-$SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz.md5 $USER@$DST:$DST_PATH
+$SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz $USER@$DST:$DST_PATH >> /dev/null 2>&1
+$SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz.md5 $USER@$DST:$DST_PATH >> /dev/null 2>&1
 
 ## Check exit status and write to log
 if [ "$?" -eq "0" ]; then
