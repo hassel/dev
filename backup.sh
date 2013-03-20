@@ -14,7 +14,7 @@ SCP=/usr/bin/scp
 ECHO=/bin/echo
 RM=/bin/rm
 MD5=/usr/bin/md5sum
-MAIL=/usr/bin/mail
+MAIL=/usr/sbin/sendmail
 
 ## Vars
 
@@ -89,7 +89,11 @@ $SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz.md5 $USER@$DST:$DST_PATH >> /de
 
 ## Check exit status and write to log
 if [ "$?" -eq "0" ]; then
-	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Moved successfully" | 
+	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Moved successfully" >> ${DBG}
+	$MAIL "$RCPT" <<EOF
+	subject:backup.$TODAY.$RND.tar.gz from $WORK_DIR/$RND Moved successfully to $DST
+	from:$FROM
+	EOF
 	else
 	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Not moved successfully" >> ${DBG}
 	exit 1
