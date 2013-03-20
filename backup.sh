@@ -1,6 +1,8 @@
 #!/bin/bash
 # - 2013-03-15
-# - Initial script carl.hasselstrom@pwny.se
+# - Initial script - carl.hasselstrom@pwny.se
+# - 2013-03-18
+# - Output redirection - markus.junghage@cygate.com 
 
 # Bins
 
@@ -12,8 +14,9 @@ SCP=/usr/bin/scp
 ECHO=/bin/echo
 RM=/bin/rm
 MD5=/usr/bin/md5sum
+MAIL=/usr/bin/mail
 
-# Vars
+## Vars
 
 # Remote
 
@@ -27,9 +30,16 @@ KEY="~/.ssh/id_rsa"			## Local ssh key to use
 DBG="/var/log/backup.log"		## Logfile to write backup logs to
 LOG_PATH="/home/carhas/dev/test" 	## Where logs that should be backedup are located
 WORK_DIR="/tmp/backup"			## Where to create a temporary work environment
+AGE="-1"				## Age of the files to move. (mtime age, ref man find)
+
+# Email
+
+RCPT="markus.junghage@trafikverket.se"	## to header
+FROM="troremc2@transportstyrelsen.se"	## from header
+
+## BEGIN
 
 RND=$RANDOM
-AGE="-1"
 
 if [ -z $1 ]; then
 	TODAY=$(date +%F)
@@ -79,7 +89,7 @@ $SCP -i $KEY $WORK_DIR/backup.$TODAY.$RND.tar.gz.md5 $USER@$DST:$DST_PATH >> /de
 
 ## Check exit status and write to log
 if [ "$?" -eq "0" ]; then
-	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Moved successfully" >> ${DBG}
+	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Moved successfully" | 
 	else
 	$ECHO "`date +%F-%R` -> DBG : SCP backup.$TODAY.$RND.tar.gz in $WORK_DIR/$RND Not moved successfully" >> ${DBG}
 	exit 1
