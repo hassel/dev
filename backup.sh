@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -u
 # - 2013-03-15
 # - Initial script - carl.hasselstrom@pwny.se
 # - 2013-03-18
@@ -100,6 +100,6 @@ if [ "$?" -eq "0" ]; then
 fi
 
 ## Clean up
-$RM -rf $WORK_DIR/*
+$RM -rf $WORK_DIR
 
 exit 0
