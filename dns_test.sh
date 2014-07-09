@@ -5,7 +5,7 @@
 # Hassel - 2013
 #
 DIG=/usr/bin/dig
-NS_INT_ROOT="ns.sth.kambi.com"
+NS_INT_ROOT="ns.example.com"
 REF="217.75.96.11 8.8.8.8"
 
 _get_int_ns(){
