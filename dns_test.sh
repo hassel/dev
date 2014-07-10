@@ -28,7 +28,7 @@ _kambi_recursive(){
         $DIG -p54 +short @$NS $@ | sort
 }
 _compare_external_internal(){
-        echo -e "\E[32m\E[1m*  \E[0m Record/domain doesn't seem to be owned by kambi                                             \E[34m\E[1m[\E[33m !! \E[34m]\E[0m" 
+        echo -e "\E[32m\E[1m*  \E[0m Record/domain doesn't seem to be owned by us (internaly)                                             \E[34m\E[1m[\E[33m !! \E[34m]\E[0m" 
         echo -e "\E[32m\E[1m*  \E[0m Fetching in ns from interwebz"
         EXT_NS=$(_get_ext_ns $@)
         if [ -z "$EXT_NS" ]; then
