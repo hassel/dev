@@ -4,12 +4,16 @@
 # please help me to find out if we fucked up internaly externaly or both !!!1
 # Hassel - 2013
 #
+
+# enter yer "main" domain for fetching internal ns records
+INT_DOMAIN="example.com"
+
 DIG=/usr/bin/dig
 NS_INT_ROOT="ns.example.com"
 REF="217.75.96.11 8.8.8.8"
 
 _get_int_ns(){
-        $DIG ns services.kambi.com +short
+        $DIG ns $INT_DOMAIN +short
 }
 _get_ext_ns(){
         domain=$(echo $@ | awk -F . '{ print $(NF-1) "." $NF }')
