@@ -76,7 +76,7 @@ _compare_internal_external(){
 
 
 _compare_internal_unbound_nsd(){
-                echo -e "\E[32m\E[1m*  \E[0m Record seems to owned by kambi                                                \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
+                echo -e "\E[32m\E[1m*  \E[0m Record seems to owned by you                                                \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
                 INT_NS=$(_get_int_ns)
                 for NS in $INT_NS;
                 do
@@ -123,7 +123,10 @@ _get_opts(){
                                         echo -e "\E[32m\E[1m*  \E[0m " 
                                         ;;
                                 *)
-                                        $$ -h
+                                        _get_opts -h
+                                        ;;
+                                ?)
+                                        echo -e  "\E[32m\E[1m*  \E[0m " DERP
                                         ;;
                         esac
                 done
