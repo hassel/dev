@@ -18,13 +18,13 @@ _get_ext_ns(){
 _ext_recursion(){
         $DIG $@ +short | sort
 }
-_kambi_authoritative(){
+_internal_authoritative(){
         $DIG -p53 +short @$NS $@ | sort
 }
 _root_int(){
         $DIG -p53 +short @$NS_INT_ROOT $@ | sort
 }
-_kambi_recursive(){
+_internal_recursive(){
         $DIG -p54 +short @$NS $@ | sort
 }
 _compare_external_internal(){
@@ -39,7 +39,7 @@ _compare_external_internal(){
         echo -e "\E[32m\E[1m*  \E[0m Done" 
         for NS in $INT_NS; do
                 for QUERY in $EXT_NS; do
-                        if [ "$(_kambi_recursive $@)" == "$(_ext_recursion $@ @$QUERY)" ];
+                        if [ "$(_internal_recursive $@)" == "$(_ext_recursion $@ @$QUERY)" ];
                                 then 
                                         echo -e "\E[32m\E[1m*  \E[0m Recrusion successfull for $@ (for $NS via $QUERY)    \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
                                 fi
@@ -51,7 +51,7 @@ _compare_internal_external(){
         INT_NS=$(_get_int_ns)
         for NS in $INT_NS; do
                 for QUERY in $EXT_NS; do
-                        if [ "$(_kambi_recursive $@)" == "$(_ext_recursion $@ @$QUERY)" ];
+                        if [ "$(_internal_recursive $@)" == "$(_ext_recursion $@ @$QUERY)" ];
                                 then 
                                         echo -e "\E[32m\E[1m*  \E[0m Recrusion successfull for $@ (via $QUERY)    \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
                                 else
@@ -62,7 +62,7 @@ _compare_internal_external(){
                                         else
                                                 echo -e "\E[32m\E[1m*  \E[0m Diff between internal & external answer."
                                                 echo -e "\E[32m\E[1m*  \E[0m External "$(_ext_recursion $@ @$QUERY)"  \E[34m\E[1m[\E[33m !! \E[34m]\E[0m"
-                                                echo -e "\E[32m\E[1m*  \E[0m Internal "$(_kambi_recursive $@)"        \E[34m\E[1m[\E[33m !! \E[34m]\E[0m"
+                                                echo -e "\E[32m\E[1m*  \E[0m Internal "$(_internal_recursive $@)"        \E[34m\E[1m[\E[33m !! \E[34m]\E[0m"
                                         fi
 
                                 fi
@@ -76,12 +76,12 @@ _compare_internal_unbound_nsd(){
                 INT_NS=$(_get_int_ns)
                 for NS in $INT_NS;
                 do
-                        if [ "$(_kambi_recursive $@)" == "$(_root_int $@)"  ]; then
+                        if [ "$(_internal_recursive $@)" == "$(_root_int $@)"  ]; then
                                 echo -e "\E[32m\E[1m*  \E[0m Unbound at $NS in sync with $NS_INT_ROOT                   \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
                         else
                                 echo -e "\E[32m\E[1m*  \E[0m Unbound at $NS NOT in sync with $NS_INT_ROOT               \E[34m\E[1m[\E[33m !! \E[34m]\E[0m" 
                         fi
-                        if [ "$(_kambi_authoritative $@)" == "$(_root_int $@)" ]; then
+                        if [ "$(_internal_authoritative $@)" == "$(_root_int $@)" ]; then
                                 echo -e "\E[32m\E[1m*  \E[0m NSD at $NS in sync with $NS_INT_ROOT                       \E[34m\E[1m[\E[32m ok \E[34m]\E[0m"
                         else
                                 echo -e "\E[32m\E[1m*  \E[0m NSD at $NS NOT in sync with $NS_INT_ROOT                   \E[34m\E[1m[\E[33m !! \E[34m]\E[0m"
