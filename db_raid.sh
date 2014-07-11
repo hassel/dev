@@ -22,7 +22,7 @@ function _get_disk_type () {
 } 
 
 function _mkfs_and_dir (){
-  if [ -x /sbin/mkfs.xfs ]; then
+  if [ -x $MKFS ]; then
           $ID -u $USER
     if [ "$?" == "0" ]; then
           DIR="/var/lib/postgresql"
