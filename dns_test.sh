@@ -12,7 +12,7 @@ NS_INT_ROOT="ns.example.com" # internal, hidden root
 
 # bin
 DIG=/usr/bin/dig
-ECHO=/bin/$ECHO
+ECHO=/bin/echo
 
 _get_int_ns(){
         $DIG ns $INT_DOMAIN +short
