@@ -91,6 +91,8 @@ _get_server_zone_stat_traffic () {
         SERVERZONERXB=$($CURL -s $LB$SERVERZONE/$ZONE/received)
         SERVERZONETXB=$($CURL -s $LB$SERVERZONE/$ZONE/sent)
 }
+
+## Get backend id, and verify
 _get_upstream_backend_id () {
         $CURL -s "$LB$UPSTREAMS/$UP" | $JQ 'keys | .[]' >> /dev/null 2>&1
         if [ $? != "0" ]; then
@@ -99,22 +101,33 @@ _get_upstream_backend_id () {
         fi
         $CURL -s "$LB$UPSTREAMS/$UP" | $JQ 'keys | .[]' | $SED s/\"//g
 }
+
+## Get backend status
 _get_upstream_backend_id_status () {
         BACKENDSTATUS=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/state" | $SED s/\"//g)
 }
+
+## Get backend downtime
 _get_upstream_backend_id_downtime () {
         BACKENDDOWNTIME=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/downtime")
 }
 
+## Get ipaddr of backend
 _get_upstream_backend_id_status_ip () {
         BACKENDIP=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/server" | $SED s/\"//g)
 }
+
+## Get configuration 
 _get_upstream_conf () {
         BACKENDCONFIG=$($CURL -s "$LB$UPSTREAMCONF?upstream=$UP&id=$ID" )
 }
+
+## Set backend state uo/down
 _set_upstream_conf () {
         BACKENDCONFIG=$($CURL -s "$LB$UPSTREAMCONF?upstream=$UP&id=$ID&$STATE=" )
 } 
+
+## Some math
 _filthy_humans () {
          $AWK '{
           sum=$1 ; hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**3; x>=1024; x/=1024){
@@ -297,11 +310,11 @@ _main () {
 
         if [ -z "$UP" ]; then
                 echo
-                echo SECTION UPSTREAM 
+                echo -e "\E[32m\E[1m*  \E[0m \E[1mupstreams"
                 echo
                 _config_status_upstream_all
                 echo
-                echo SECTION SERVERZONES
+                echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzones"
                 echo
                 _status_all_server_zone
                 exit 0
