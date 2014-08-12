@@ -25,26 +25,49 @@ SERVEZONE3xx=""
 SERVEZONE4xx=""
 SERVEZONE5xx=""
 ZONE=""
-
+BACKENDDOWNTIME=""
 ## BIN
 CURL=/usr/bin/curl 
-JQ=/usr/bin/jq
 AWK=/usr/bin/awk
+JQ=/usr/bin/jq
 MKTEMP=/bin/mktemp
 ECHO="/bin/echo -e"
 
 
 ## FUNC
 
-_create_workdir () {
-        $MKTEMP
-}
+#_create_workdir () {
+#        $MKTEMP
+#}
+
+## Get upstrams in to array
 _get_upstreams () {
         $CURL -s "$LB$UPSTREAMS" | $JQ 'keys | .[]' | sed s/\"//g
 }
+
+## Get upstream http statistics 
+_get_upstream_stat_http () {
+        UNODETOT=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/total")
+        UNODE1xx=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/1xx")
+        UNODE2xx=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/2xx")
+        UNODE3xx=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/3xx")
+        UNODE4xx=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/4xx")
+        UNODE5xx=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/responses/5xx")
+}
+
+
+## Get upstream traffic statistics 
+_get_upstream_stat_traffic () {
+        UNODETXB=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/sent")
+        UNODERXB=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/received")
+}
+
+## Get serverzones in to array
 _get_server_zones () {
         $CURL -s "$LB$SERVERZONE" | $JQ 'keys | .[]' | sed s/\"//g
 }
+
+## Get serverzone http statistics 
 _get_server_zone_stat_http () {
         SERVEZONETOT=$($CURL -s "$LB$SERVERZONE/$ZONE/responses/total")
         SERVEZONE1xx=$($CURL -s "$LB$SERVERZONE/$ZONE/responses/1xx")
@@ -53,6 +76,8 @@ _get_server_zone_stat_http () {
         SERVEZONE4xx=$($CURL -s "$LB$SERVERZONE/$ZONE/responses/4xx")
         SERVEZONE5xx=$($CURL -s "$LB$SERVERZONE/$ZONE/responses/5xx")
 }
+
+## Get Serverzone traffic statistics
 _get_server_zone_stat_traffic () {
         SERVERZONERXB=$($CURL -s $LB$SERVERZONE/$ZONE/received)
         SERVERZONETXB=$($CURL -s $LB$SERVERZONE/$ZONE/sent)
@@ -68,6 +93,10 @@ _get_upstream_backend_id () {
 _get_upstream_backend_id_status () {
         BACKENDSTATUS=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/state" | sed s/\"//g)
 }
+_get_upstream_backend_id_downtime () {
+        BACKENDDOWNTIME=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/downtime")
+}
+
 _get_upstream_backend_id_status_ip () {
         BACKENDIP=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/server" | sed s/\"//g)
 }
@@ -125,7 +154,7 @@ _config_status_upstream_all () {
 #        done
 #}
 _show_upstream_status () {
-        echo -e "\E[32m\E[1m*  \E[0m Upstream :$UP"
+        echo -e "\E[32m\E[1m*  \E[0m Upstream : $UP"
         for x in $(_get_upstream_backend_id);
         do
                 ID=$x
@@ -136,11 +165,15 @@ _show_upstream_status () {
                 fi
                 _get_upstream_backend_id_status_ip
                 _get_upstream_backend_id_status
+                _get_upstream_backend_id_downtime
                 if [ "$BACKENDSTATUS" = "up" ];
                 then
-                        echo -e "\E[32m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
+                        _get_upstream_stat_traffic
+                        _get_upstream_stat_http
+                        echo -e "\E[32m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m Downtime : $BACKENDDOWNTIME"
+                        _compile_upstream_stats
                 else
-                        echo -e "\E[31m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m"
+                        echo -e "\E[31m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m Downtime : $BACKENDDOWNTIME"
                 fi
         done
 }
@@ -192,28 +225,50 @@ _change_upstream_config () {
         fi
         exit 0
 }
-_compile_server_zone () {
-        if [ "$SERVERZONETXB" -le "1024" ];then
 
-                echo -e "\E[33m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
+_compile_upstream_stats () {
+        if [ "$UNODETXB" -le "1024" ];then
+
+                echo -e "\E[33m\E[1m*  \E[0m No traffic for $UP/$ID, (passive node?)"
                         continue
                 else 
                         echo -e "\E[32m\E[1m*  \E[0m ServerZone Stats for : $ZONE"
-                        RX=$(echo $SERVERZONERXB | _filthy_humans)
+                        RX=$(echo $UNODERXB | _filthy_humans)
                         echo -e "\E[32m\E[1m|  \E[0m Traffic RX $RX"
                 fi
-                if [ "$SERVERZONERXB" -le "1024" ];then
+                if [ "$UNODERXB" -le "1024" ];then
                         echo -e "\E[32m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
                         continue
                 else
-                        TX=$(echo $SERVERZONETXB | _filthy_humans)
+                        TX=$(echo $UNODETXB | _filthy_humans)
                         echo -e "\E[32m\E[1m|  \E[0m Traffic TX $TX"
                         echo -e "\E[32m\E[1m*  \E[0m Responses:" 
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 100 $SERVEZONE1xx"
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 200 $SERVEZONE2xx"
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 300 $SERVEZONE3xx"
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 400 $SERVEZONE4xx"
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 500 $SERVEZONE5xx"
+                        echo -e "\E[32m\E[1m|  \E[0m HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx"
+        fi
+}
+
+_compile_serverzone_stats () {
+        if [ "$SERVERZONETXB" -le "1024" ];then
+
+                echo -e "\E[33m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
+                continue
+        else 
+                echo -e "\E[32m\E[1m*  \E[0m ServerZone Stats for : $ZONE"
+                RX=$(echo $SERVERZONERXB | _filthy_humans)
+                echo -e "\E[32m\E[1m|  \E[0m Traffic RX : $RX"
+        fi
+        if [ "$SERVERZONERXB" -le "1024" ];then
+                echo -e "\E[32m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
+                continue
+        else
+                TX=$(echo $SERVERZONETXB | _filthy_humans)
+                echo -e "\E[32m\E[1m|  \E[0m Traffic TX : $TX"
+                echo -e "\E[32m\E[1m*  \E[0m Responses:" 
+                echo -e "\E[32m\E[1m|  \E[0m HTTP 1xx : $SERVEZONE1xx"
+                echo -e "\E[32m\E[1m|  \E[0m HTTP 2xx : $SERVEZONE2xx"
+                echo -e "\E[32m\E[1m|  \E[0m HTTP 3xx : $SERVEZONE3xx"
+                echo -e "\E[32m\E[1m|  \E[0m HTTP 4xx : $SERVEZONE4xx"
+                echo -e "\E[32m\E[1m|  \E[0m HTTP 5xx : $SERVEZONE5xx"
         fi
 }
 _status_all_server_zone () {
@@ -221,14 +276,16 @@ _status_all_server_zone () {
                 ZONE=$z
                 _get_server_zone_stat_traffic
                 _get_server_zone_stat_http
-                _compile_server_zone
+                _compile_serverzone_stats
         done
 }
 _show_server_zone_status () {
+         for z in $ZONE; do
                 _get_server_zone_stat_traffic
                 _get_server_zone_stat_http
-                _compile_server_zone
-}
+                _compile_serverzone_stats
+        done
+ }
 
 _main () {
         if [ "$STATUS" = "1" ]; then
