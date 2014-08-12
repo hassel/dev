@@ -35,6 +35,7 @@ UNODE4xx="0"
 UNODE5xx="0"
 
 ## BIN
+SED=/bin/sed
 CURL=/usr/bin/curl 
 AWK=/usr/bin/awk
 JQ=/usr/bin/jq
@@ -50,7 +51,7 @@ ECHO=/bin/echo
 
 ## Get upstrams in to array
 _get_upstreams () {
-        $CURL -s "$LB$UPSTREAMS" | $JQ 'keys | .[]' | sed s/\"//g
+        $CURL -s "$LB$UPSTREAMS" | $JQ 'keys | .[]' | $SED s/\"//g
 }
 
 ## Get upstream http statistics 
@@ -72,7 +73,7 @@ _get_upstream_stat_traffic () {
 
 ## Get serverzones in to array
 _get_server_zones () {
-        $CURL -s "$LB$SERVERZONE" | $JQ 'keys | .[]' | sed s/\"//g
+        $CURL -s "$LB$SERVERZONE" | $JQ 'keys | .[]' | $SED s/\"//g
 }
 
 ## Get serverzone http statistics 
@@ -96,17 +97,17 @@ _get_upstream_backend_id () {
                 echo ERROR
                 exit 1
         fi
-        $CURL -s "$LB$UPSTREAMS/$UP" | $JQ 'keys | .[]' | sed s/\"//g
+        $CURL -s "$LB$UPSTREAMS/$UP" | $JQ 'keys | .[]' | $SED s/\"//g
 }
 _get_upstream_backend_id_status () {
-        BACKENDSTATUS=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/state" | sed s/\"//g)
+        BACKENDSTATUS=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/state" | $SED s/\"//g)
 }
 _get_upstream_backend_id_downtime () {
         BACKENDDOWNTIME=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/downtime")
 }
 
 _get_upstream_backend_id_status_ip () {
-        BACKENDIP=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/server" | sed s/\"//g)
+        BACKENDIP=$($CURL -s "$LB$UPSTREAMS/$UP/$ID/server" | $SED s/\"//g)
 }
 _get_upstream_conf () {
         BACKENDCONFIG=$($CURL -s "$LB$UPSTREAMCONF?upstream=$UP&id=$ID" )
