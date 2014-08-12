@@ -25,11 +25,11 @@ SERVEZONE3xx=""
 SERVEZONE4xx=""
 SERVEZONE5xx=""
 ZONE=""
-AWK=/usr/bin/awk
 
 ## BIN
 CURL=/usr/bin/curl 
 JQ=/usr/bin/jq
+AWK=/usr/bin/awk
 MKTEMP=/bin/mktemp
 ECHO="/bin/echo -e"
 
