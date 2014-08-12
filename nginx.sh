@@ -26,12 +26,20 @@ SERVEZONE4xx=""
 SERVEZONE5xx=""
 ZONE=""
 BACKENDDOWNTIME=""
+UNODETXB="0"
+UNODERXB="0"
+UNODE1xx="0"
+UNODE2xx="0"
+UNODE3xx="0"
+UNODE4xx="0"
+UNODE5xx="0"
+
 ## BIN
 CURL=/usr/bin/curl 
 AWK=/usr/bin/awk
 JQ=/usr/bin/jq
 MKTEMP=/bin/mktemp
-ECHO="/bin/echo -e"
+ECHO=/bin/echo 
 
 
 ## FUNC
@@ -114,52 +122,21 @@ _filthy_humans () {
          }'
 }
 _config_status_upstream_all () {
-        for x in $(_get_upstreams); 
+        for z in $(_get_upstreams); 
         do
-                UP=$x
-                echo -e "\E[32m\E[1m*  \E[0m Upstream :$UP"
-                for y in $(_get_upstream_backend_id)
+                UP=$z
+                for w in $(_get_upstream_backend_id)
                 do
-                        ID=$y
-                        _get_upstream_conf
-                        _get_upstream_backend_id_status
-                        if [ "$BACKENDSTATUS" = "up" ];
-                                then
-                                        #echo -e "\E[32m\E[1m-  \E[0m Config :$BACKENDCONFIG Health \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
-                                        echo -e "\E[32m\E[1m|  \E[0m Config :$BACKENDCONFIG \E[32m\E[1m|\E[0mHealth \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
-                                else
-                                        echo -e "\E[31m\E[1m|  \E[0m Config :$BACKENDCONFIG \E[31m\E[1m|\E[0mHealth \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m"
-                        fi
-                 done
-
+                        ID=$w
+                        _show_upstream_status
+                        _show_upstream_config
+                done
         done
 }
-#_status_upstream_all () {
-#        for x in $(_get_upstreams); 
-#        do
-#                UP=$x
-#                echo -e "\E[32m\E[1m*  \E[0m $UP"
-#                for y in $(_get_upstream_backend_id)
-#                do
-#                        ID=$y
-#                        _get_upstream_backend_id_status
-#                        if [ "$BACKENDSTATUS" = "up" ];
-#                                then
-#                                        echo -e "\E[32m\E[1m|  \E[0m State \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
-#                                else
-#                                        echo -e "\E[31m\E[1m|  \E[0m State \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m"
-#                        fi
-#                 done
-#
-#        done
-#}
+
 _show_upstream_status () {
-        echo -e "\E[32m\E[1m*  \E[0m Upstream : $UP"
-        for x in $(_get_upstream_backend_id);
-        do
-                ID=$x
-                if [ $ID = "ERROR" ]; then
-                        echo -e "\E[31m\E[1m* *  \E[0m Upstream :not found"
+                if [ "$ID" = "ERROR" ]; then
+                        echo -e "\E[31m\E[1m* \E[0m \E[1m upstream/notfound"
                         break
                         exit 1
                 fi
@@ -170,26 +147,34 @@ _show_upstream_status () {
                 then
                         _get_upstream_stat_traffic
                         _get_upstream_stat_http
-                        echo -e "\E[32m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m Downtime : $BACKENDDOWNTIME"
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "           Server: $BACKENDIP"
+                        echo -e "           ID: $ID"
+                        echo -e "           Downtime: $BACKENDDOWNTIME"
+                        echo -e "           Health: \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m" 
                         _compile_upstream_stats
                 else
-                        echo -e "\E[31m\E[1m|  \E[0m Upstream-server :$BACKENDIP Health \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m Downtime : $BACKENDDOWNTIME"
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "           Server: $BACKENDIP"
+                        echo -e "           ID: $ID"
+                        echo -e "           Downtime: $BACKENDDOWNTIME"
+                        echo -e "           Health: \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m" 
+                        _compile_upstream_stats
                 fi
-        done
 }
 _show_upstream_config () {
-        echo -e "\E[32m\E[1m*  \E[0m Upstream :$UP"
-        for x in $(_get_upstream_backend_id);
-        do
-                ID=$x
                 if [ $ID = "ERROR" ]; then
                         echo -e "\E[31m\E[1m* *  \E[0m Upstream :not found"
                         break
                         exit 1
                 fi
                 _get_upstream_conf
-                echo -e "\E[33m\E[1m*  \E[0m Config :$BACKENDCONFIG"
-        done
+                #if [ "$CONFIG" = "1" ]; then
+                #        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "           Config: $BACKENDCONFIG"
+                #else
+                #        echo -e "           Config: $BACKENDCONFIG"
+                #fi
 }
 _change_upstream_config () {
         if [[ "$STATE" != "up" && "$STATE" != "down" ]]; then
@@ -213,12 +198,14 @@ _change_upstream_config () {
                 echo -e "\E[33m\E[1m*  \E[0m Cant change state, state allready $CSTATE"
         else
                 _get_upstream_conf
-                echo -e "\E[33m\E[1m*  \E[0m Change in $UP from :$BACKENDCONFIG $CSTATE"
+                echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                echo -e "           Change $UP/$ID from: $BACKENDCONFIG $CSTATE"
+                echo -e "           Change $UP/$ID to: $BACKENDCONFIG $STATE"
                 _set_upstream_conf
                 if [ $? = "0" ]; then
-                        echo -e "\E[33m\E[1m*  \E[0m Change in $UP to :$BACKENDCONFIG $STATE \E[34m\E[1m[\E[32m OK \E[34m]\E[0m"
+                        echo -e "           Change \E[34m\E[1m[\E[32m OK \E[34m]\E[0m"
                 else
-                        echo -e "\E[33m\E[1m*  \E[0m Change in $UP error \E[34m\E[1m[\E[31m !! \E[34m]\E[0m"
+                        echo -e "           Change \E[34m\E[1m[\E[31m FAIL \E[34m]\E[0m"
                         exit 1
                 fi
 
@@ -228,47 +215,41 @@ _change_upstream_config () {
 
 _compile_upstream_stats () {
         if [ "$UNODETXB" -le "1024" ];then
-
-                echo -e "\E[33m\E[1m*  \E[0m No traffic for $UP/$ID, (passive node?)"
-                        continue
+                echo -e "           Traffic: RX none (passive node?)"
                 else 
-                        echo -e "\E[32m\E[1m*  \E[0m ServerZone Stats for : $ZONE"
                         RX=$(echo $UNODERXB | _filthy_humans)
-                        echo -e "\E[32m\E[1m|  \E[0m Traffic RX $RX"
+                        echo -e "           Traffic: RX $RX"
                 fi
                 if [ "$UNODERXB" -le "1024" ];then
-                        echo -e "\E[32m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
-                        continue
+                        echo -e "           Traffic: TX none (passive node?)"
                 else
                         TX=$(echo $UNODETXB | _filthy_humans)
-                        echo -e "\E[32m\E[1m|  \E[0m Traffic TX $TX"
-                        echo -e "\E[32m\E[1m*  \E[0m Responses:" 
-                        echo -e "\E[32m\E[1m|  \E[0m HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx"
+                        echo -e "           Traffic: TX $TX"
+                        echo -e "           Response: HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx" 
         fi
 }
 
 _compile_serverzone_stats () {
+                echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone/$ZONE\E[0m"
         if [ "$SERVERZONETXB" -le "1024" ];then
-
-                echo -e "\E[33m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
+                echo -e "           Traffic: none (passive node?)"
                 continue
         else 
-                echo -e "\E[32m\E[1m*  \E[0m ServerZone Stats for : $ZONE"
                 RX=$(echo $SERVERZONERXB | _filthy_humans)
-                echo -e "\E[32m\E[1m|  \E[0m Traffic RX : $RX"
+                echo -e "           Traffic RX: $RX"
         fi
         if [ "$SERVERZONERXB" -le "1024" ];then
-                echo -e "\E[32m\E[1m*  \E[0m No traffic for $ZONE, (passive node?)"
+                echo -e "           Traffic: none (passive node?)"
                 continue
         else
                 TX=$(echo $SERVERZONETXB | _filthy_humans)
-                echo -e "\E[32m\E[1m|  \E[0m Traffic TX : $TX"
-                echo -e "\E[32m\E[1m*  \E[0m Responses:" 
-                echo -e "\E[32m\E[1m|  \E[0m HTTP 1xx : $SERVEZONE1xx"
-                echo -e "\E[32m\E[1m|  \E[0m HTTP 2xx : $SERVEZONE2xx"
-                echo -e "\E[32m\E[1m|  \E[0m HTTP 3xx : $SERVEZONE3xx"
-                echo -e "\E[32m\E[1m|  \E[0m HTTP 4xx : $SERVEZONE4xx"
-                echo -e "\E[32m\E[1m|  \E[0m HTTP 5xx : $SERVEZONE5xx"
+                echo -e "           Traffic TX: $TX"
+                echo -e "            Responses:" 
+                echo -e "             HTTP 1xx: $SERVEZONE1xx"
+                echo -e "             HTTP 2xx: $SERVEZONE2xx"
+                echo -e "             HTTP 3xx: $SERVEZONE3xx"
+                echo -e "             HTTP 4xx: $SERVEZONE4xx"
+                echo -e "             HTTP 5xx: $SERVEZONE5xx"
         fi
 }
 _status_all_server_zone () {
@@ -289,13 +270,15 @@ _show_server_zone_status () {
 
 _main () {
         if [ "$STATUS" = "1" ]; then
-                _show_upstream_status
+                for ID in $(_get_upstream_backend_id)
+                do
+                        _show_upstream_status
+                done
                 exit 0
         fi
         if [ "$CONFIG" = "1" ]; then
                 if [ "$SET" = "1" ]; then
                         if [[ "$SET" = "1" && ! -z "$NODEID" ]]; then
-                                echo 3
                                  _change_upstream_config
                                  exit 0
                         else
@@ -304,7 +287,11 @@ _main () {
                         fi
                         exit 0
                 fi
-                _show_upstream_config
+                for ID in $(_get_upstream_backend_id)
+                do
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        _show_upstream_config
+                done
                 exit 0
         fi
         if [ ! -z "$ZONE" ]; then
@@ -313,13 +300,13 @@ _main () {
         fi
 
         if [ -z "$UP" ]; then
-                $ECHO
-                $ECHO SECTION UPSTREAM 
-                $ECHO
+                echo
+                echo SECTION UPSTREAM 
+                echo
                 _config_status_upstream_all
-                $ECHO
-                $ECHO SECTION SERVERZONES
-                $ECHO
+                echo
+                echo SECTION SERVERZONES
+                echo
                 _status_all_server_zone
                 exit 0
         fi
