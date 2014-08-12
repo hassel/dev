@@ -170,12 +170,7 @@ _show_upstream_config () {
                         exit 1
                 fi
                 _get_upstream_conf
-                #if [ "$CONFIG" = "1" ]; then
-                #        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
-                        echo -e "           Config: $BACKENDCONFIG"
-                #else
-                #        echo -e "           Config: $BACKENDCONFIG"
-                #fi
+                echo -e "           Config: $BACKENDCONFIG"
 }
 _change_upstream_config () {
         if [[ "$STATE" != "up" && "$STATE" != "down" ]]; then
@@ -217,16 +212,16 @@ _change_upstream_config () {
 _compile_upstream_stats () {
         if [ "$UNODETXB" -le "1024" ];then
                 echo -e "           Traffic: RX none (passive node?)"
-                else 
-                        RX=$(echo $UNODERXB | _filthy_humans)
-                        echo -e "           Traffic: RX $RX"
-                fi
-                if [ "$UNODERXB" -le "1024" ];then
-                        echo -e "           Traffic: TX none (passive node?)"
-                else
-                        TX=$(echo $UNODETXB | _filthy_humans)
-                        echo -e "           Traffic: TX $TX"
-                        echo -e "           Response: HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx" 
+        else 
+                RX=$(echo $UNODERXB | _filthy_humans)
+                echo -e "           Traffic: RX $RX"
+        fi
+        if [ "$UNODERXB" -le "1024" ];then
+                echo -e "           Traffic: TX none (passive node?)"
+        else
+                TX=$(echo $UNODETXB | _filthy_humans)
+                echo -e "           Traffic: TX $TX"
+                echo -e "           Response: HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx" 
         fi
 }
 
