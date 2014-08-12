@@ -1,6 +1,7 @@
 #!/bin/bash -u
 #
 # Carl 
+# retard status script
 # Kambi 2014
 
 ## VAR
