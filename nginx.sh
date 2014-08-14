@@ -234,7 +234,7 @@ _compile_upstream_stats () {
         else
                 TX=$(echo $UNODETXB | _filthy_humans)
                 echo -e "           Traffic: TX $TX"
-                echo -e "           Response: HTTP 1xx $UNODE1xx | HTTP 2xx $UNODE2xx | HTTP 3xx $UNODE3xx | HTTP 4xx $UNODE4xx | HTTP 5xx  $UNODE5xx" 
+                echo -e "           Response: HTTP 1xx: $UNODE1xx | HTTP 2xx: $UNODE2xx | HTTP 3xx: $UNODE3xx | HTTP 4xx: $UNODE4xx | HTTP 5xx:  $UNODE5xx" 
         fi
 }
 
