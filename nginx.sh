@@ -3,6 +3,7 @@
 # Carl 
 # retard status script
 # Kambi 2014
+#
 
 ## VAR
 UPSTREAMS="/status/upstreams"
@@ -172,14 +173,14 @@ _show_upstream_status () {
                 then
                         _get_upstream_stat_traffic
                         _get_upstream_stat_http
-                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
                         echo -e "           Downtime: $BACKENDDOWNTIME"
                         echo -e "           Health: \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m" 
                         _compile_upstream_stats
                 else
-                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
                         echo -e "           Downtime: $BACKENDDOWNTIME"
@@ -250,7 +251,7 @@ _compile_upstream_stats () {
 }
 
 _compile_serverzone_stats () {
-                echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone/$ZONE\E[0m"
+                echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone / $ZONE\E[0m"
         if [ "$SERVERZONETXB" -le "1024" ];then
                 echo -e "           Traffic: none (passive node?)"
                 continue
