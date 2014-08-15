@@ -48,7 +48,18 @@ ECHO=/bin/echo
 #_create_workdir () {
 #        $MKTEMP
 #}
-
+_check_binarys () {
+        for bin in $@;
+        do
+                if [ ! -f "$bin" ]; then
+                        echo -e "\E[32m\E[1m*  \E[0m \E[mCould not find required binary $bin"
+                        exit 1
+                fi
+                if [ ! -x "$bin" ]; then
+                        echo -e "\E[32m\E[1m*  \E[0m \E[m$bin doesn't seem to be exicutable"
+                fi
+        done
+}
 ## Get upstrams in to array
 _get_upstreams () {
         $CURL -s "$LB$UPSTREAMS" | $JQ 'keys | .[]' | $SED s/\"//g
@@ -381,6 +392,9 @@ _main () {
         done
         _main
 }
+
+_check_binarys $SED $CURL $AWK $JQ $ECHO
+
 if [ "$#" -lt "1" ]; then
         _get_opts -h
 else
