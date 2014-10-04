@@ -353,9 +353,9 @@ _main () {
                                 echo -e "\E[32m\E[1m*  \E[0m    -n              node id (use with -m and -c)"
                                 echo -e "\E[32m\E[1m*  \E[0m" 
                                 echo -e "\E[32m\E[1m*  \E[0m  Exampels:"
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.kambi.com -c upstream -n node -m down" 
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.kambi.com -z zone"
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.kambi.com -u upstream"
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -c upstream -n node -m down" 
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -z zone"
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -u upstream"
                                 exit 0
                         ;;
                         l)
