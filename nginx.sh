@@ -44,7 +44,7 @@ MKTEMP=/bin/mktemp
 ECHO=/bin/echo 
 
 
-## FUNC
+## Functions
 
 #_create_workdir () {
 #        $MKTEMP
@@ -394,6 +394,8 @@ _main () {
         _main
 }
 
+## Start script
+
 _check_binarys $SED $CURL $AWK $JQ $ECHO
 
 if [ "$#" -lt "1" ]; then
@@ -401,8 +403,3 @@ if [ "$#" -lt "1" ]; then
 else
         _get_opts $@
 fi
-
-
-
-
-
