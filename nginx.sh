@@ -147,6 +147,8 @@ _filthy_humans () {
               }
          }'
 }
+
+## upstream status loop, if _get_upstream succeeds
 _config_status_upstream_all () {
         for z in $(_get_upstreams); 
         do
@@ -160,6 +162,7 @@ _config_status_upstream_all () {
         done
 }
 
+## show all upstream status, after upstream status loops
 _show_upstream_status () {
                 if [ "$ID" = "ERROR" ]; then
                         echo -e "\E[31m\E[1m* \E[0m \E[1m upstream/notfound"
@@ -188,6 +191,7 @@ _show_upstream_status () {
                         _compile_upstream_stats
                 fi
 }
+
 _show_upstream_config () {
                 if [ $ID = "ERROR" ]; then
                         echo -e "\E[31m\E[1m* *  \E[0m Upstream :not found"
@@ -345,7 +349,7 @@ _main () {
                                 echo -e "\E[32m\E[1m*  \E[0m  Status options:"
                                 echo -e "\E[32m\E[1m*  \E[0m    -l              host (for full status)" 
                                 echo -e "\E[32m\E[1m*  \E[0m    -u              upstream (get upstream status)"
-                                echo -e "\E[32m\E[1m*  \E[0m    -c              upstream (get upstream config)"
+                                echo -e "\E[32m\E[1m*  \E[0m    -c              upstream (get/change upstream config)"
                                 echo -e "\E[32m\E[1m*  \E[0m    -z              serverzone (get zerverzone status)"
                                 echo -e "\E[32m\E[1m*  \E[0m" 
                                 echo -e "\E[32m\E[1m*  \E[0m  Nodify options:"
@@ -353,9 +357,9 @@ _main () {
                                 echo -e "\E[32m\E[1m*  \E[0m    -n              node id (use with -m and -c)"
                                 echo -e "\E[32m\E[1m*  \E[0m" 
                                 echo -e "\E[32m\E[1m*  \E[0m  Exampels:"
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -c upstream -n node -m down" 
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -z zone"
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.cc.com -u upstream"
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -c upstream -n node -m down" 
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -z zone"
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -u upstream"
                                 exit 0
                         ;;
                         l)
