@@ -150,7 +150,7 @@ _filthy_humans () {
 
 ## upstream status loop, if _get_upstream succeeds
 _config_status_upstream_all () {
-        for z in $(_get_upstreams); 
+        for z in $(_get_upstreams);
         do
                 UP=$z
                 for w in $(_get_upstream_backend_id)
@@ -180,14 +180,14 @@ _show_upstream_status () {
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
                         echo -e "           Downtime: $BACKENDDOWNTIME"
-                        echo -e "           Health: \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m" 
+                        echo -e "           Health: \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
                         _compile_upstream_stats
                 else
                         echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
                         echo -e "           Downtime: $BACKENDDOWNTIME"
-                        echo -e "           Health: \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m" 
+                        echo -e "           Health: \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m"
                         _compile_upstream_stats
                 fi
 }
@@ -252,7 +252,7 @@ _compile_upstream_stats () {
         else
                 TX=$(echo $UNODETXB | _filthy_humans)
                 echo -e "           Traffic: TX $TX"
-                echo -e "           Response: HTTP 1xx: $UNODE1xx | HTTP 2xx: $UNODE2xx | HTTP 3xx: $UNODE3xx | HTTP 4xx: $UNODE4xx | HTTP 5xx:  $UNODE5xx" 
+                echo -e "           Response: HTTP 1xx: $UNODE1xx | HTTP 2xx: $UNODE2xx | HTTP 3xx: $UNODE3xx | HTTP 4xx: $UNODE4xx | HTTP 5xx:  $UNODE5xx"
         fi
 }
 
@@ -272,7 +272,7 @@ _compile_serverzone_stats () {
         else
                 TX=$(echo $SERVERZONETXB | _filthy_humans)
                 echo -e "           Traffic TX: $TX"
-                echo -e "            Responses:" 
+                echo -e "            Responses:"
                 echo -e "             HTTP 1xx: $SERVEZONE1xx"
                 echo -e "             HTTP 2xx: $SERVEZONE2xx"
                 echo -e "             HTTP 3xx: $SERVEZONE3xx"
@@ -360,7 +360,7 @@ _main () {
                                 echo -e "\E[32m\E[1m*  \E[0m    -n              node id (use with -m and -c)"
                                 echo -e "\E[32m\E[1m*  \E[0m" 
                                 echo -e "\E[32m\E[1m*  \E[0m  Exampels:"
-                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -c upstream -n node -m down" 
+                                echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -c upstream -n node -m down"
                                 echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -z zone"
                                 echo -e "\E[32m\E[1m*  \E[0m    $(basename $0) -l lbx.site.ltd.com -u upstream"
                                 exit 0
