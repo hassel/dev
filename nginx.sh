@@ -201,6 +201,8 @@ _show_upstream_config () {
                 _get_upstream_conf
                 echo -e "           Config: $BACKENDCONFIG"
 }
+
+## Modify nginx backend status via upstream_conf-api
 _change_upstream_config () {
         if [[ "$STATE" != "up" && "$STATE" != "down" ]]; then
                 echo -e "\E[33m\E[1m*  \E[0m Argument up/down needed for -m"
@@ -254,6 +256,7 @@ _compile_upstream_stats () {
         fi
 }
 
+## Compile stats fro serverzone statistics 
 _compile_serverzone_stats () {
                 echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone / $ZONE\E[0m"
         if [ "$SERVERZONETXB" -le "1024" ];then
