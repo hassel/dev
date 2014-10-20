@@ -317,7 +317,7 @@ _main () {
                 fi
                 for ID in $(_get_upstream_backend_id)
                 do
-                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream/$UP/$ID\E[0m"
+                        echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         _show_upstream_config
                 done
                 exit 0
