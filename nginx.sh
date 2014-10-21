@@ -297,13 +297,16 @@ _show_server_zone_status () {
  }
 
 _main () {
-        if [ "$STATUS" = "1" ]; then
+         if [ "$STATUS" = "1" ]; then
+                if [ ! -z "$ZONE" ]; then
+                         _show_server_zone_status
+                fi                                                                                                                                                                                                                                                            
                 for ID in $(_get_upstream_backend_id)
                 do
-                        _show_upstream_status
+                          _show_upstream_status
                 done
                 exit 0
-        fi
+        fi      
         if [ "$CONFIG" = "1" ]; then
                 if [ "$SET" = "1" ]; then
                         if [[ "$SET" = "1" && ! -z "$NODEID" ]]; then
@@ -323,10 +326,15 @@ _main () {
                 exit 0
         fi
         if [ ! -z "$ZONE" ]; then
+                if [ "$STATUS" = "1" ]; then
+                        for ID in $(_get_upstream_backend_id)
+                        do
+                                _show_upstream_status
+                        done                       
+                fi
                 _show_server_zone_status
                 exit 0
-        fi
-
+        fi 
         if [ -z "$UP" ]; then
                 echo
                 echo -e "\E[32m\E[1m*  \E[0m \E[1mupstreams"
