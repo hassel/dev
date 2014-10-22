@@ -299,11 +299,11 @@ _show_server_zone_status () {
 _main () {
          if [ "$STATUS" = "1" ]; then
                 if [ ! -z "$ZONE" ]; then
-                         _show_server_zone_status
+                        _show_server_zone_status
                 fi                                                                                                                                                                                                                                                            
                 for ID in $(_get_upstream_backend_id)
                 do
-                          _show_upstream_status
+                        _show_upstream_status
                 done
                 exit 0
         fi      
