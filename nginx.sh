@@ -49,6 +49,7 @@ ECHO=/bin/echo
 #_create_workdir () {
 #        $MKTEMP
 #}
+
 _check_binarys () {
         for bin in $@;
         do
@@ -240,6 +241,7 @@ _change_upstream_config () {
         exit 0
 }
 
+## Call _filthy_humans to calc traffic stats, and present http-stats from upstreams
 _compile_upstream_stats () {
         if [ "$UNODETXB" -le "1024" ];then
                 echo -e "           Traffic: RX none (passive node?)"
@@ -256,7 +258,7 @@ _compile_upstream_stats () {
         fi
 }
 
-## Compile stats fro serverzone statistics 
+## Call _filthy_humans and compile stats from serverzone statistics 
 _compile_serverzone_stats () {
                 echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone / $ZONE\E[0m"
         if [ "$SERVERZONETXB" -le "1024" ];then
@@ -280,6 +282,8 @@ _compile_serverzone_stats () {
                 echo -e "             HTTP 5xx: $SERVEZONE5xx"
         fi
 }
+
+## Aggregated function to show all zone stuff
 _status_all_server_zone () {
         for z in $(_get_server_zones); do
                 ZONE=$z
@@ -288,6 +292,8 @@ _status_all_server_zone () {
                 _compile_serverzone_stats
         done
 }
+
+## Function to show all zone stuff
 _show_server_zone_status () {
          for z in $ZONE; do
                 _get_server_zone_stat_traffic
@@ -296,6 +302,7 @@ _show_server_zone_status () {
         done
  }
 
+## Main loop go do validate stuff etc.
 _main () {
          if [ "$STATUS" = "1" ]; then
                 if [ ! -z "$ZONE" ]; then
@@ -349,7 +356,9 @@ _main () {
 
 }
 
- _get_opts(){
+## Get options 
+
+_get_opts(){
         while getopts ":h :l: :u: :c: :m: :n: :z: :live:" opt
         do
                 case $opt in
