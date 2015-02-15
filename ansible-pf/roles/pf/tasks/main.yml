@@ -3,6 +3,7 @@
   subversion: repo={{ svnurl }}{{ svnpath }} dest={{ checkoutpath }} username={{ svnuser }} password={{ svnpass }}
   tags:
     - deploy-pf
+    - deploy-pf-q
   register: svn
 
 
@@ -13,6 +14,7 @@
   ignore_errors: true
   tags:
     - deploy-pf
+    - deploy-pf-q
 
 
 - name: deploying packetfilter config
@@ -23,6 +25,7 @@
   ignore_errors: true
   tags:
     - deploy-pf
+    - deploy-pf-q
 
 
 - hipchat: token={{ hipchat_token }} room={{ hipchat_room }} api={{ hipchat_api }} from="{{ inventory_hostname }}" msg="I just failed to parse pf.conf successfully, bailing out" validate_certs=no color=red
