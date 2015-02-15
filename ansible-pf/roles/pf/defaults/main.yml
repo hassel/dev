@@ -5,6 +5,4 @@ svnuser:
 svnpass: 
 checkoutpath: /etc/{{ inventory_hostname }}
 
-hipchat_api: 
 hipchat_room: AnsibleTest
-hipchat_token: 
