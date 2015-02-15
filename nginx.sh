@@ -14,6 +14,7 @@ UP=""
 ID=""
 STATUS="0"
 CONFIG="0"
+LIVE=""
 SET="0"
 NODEID=""
 CSTATE=""
@@ -49,7 +50,6 @@ ECHO=/bin/echo
 #_create_workdir () {
 #        $MKTEMP
 #}
-
 _check_binarys () {
         for bin in $@;
         do
@@ -135,7 +135,7 @@ _get_upstream_conf () {
         BACKENDCONFIG=$($CURL -s "$LB$UPSTREAMCONF?upstream=$UP&id=$ID" )
 }
 
-## Set backend state uo/down
+## Set backend state up/down/drain
 _set_upstream_conf () {
         BACKENDCONFIG=$($CURL -s "$LB$UPSTREAMCONF?upstream=$UP&id=$ID&$STATE=" )
 } 
@@ -180,14 +180,14 @@ _show_upstream_status () {
                         echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
-                        echo -e "           Downtime: $BACKENDDOWNTIME"
+                        echo -e "           Downtime: $BACKENDDOWNTIME sec"
                         echo -e "           Health: \E[34m\E[1m[\E[32m $BACKENDSTATUS \E[34m]\E[0m"
                         _compile_upstream_stats
                 else
                         echo -e "\E[32m\E[1m*  \E[0m \E[1mupstream / $UP / $ID\E[0m"
                         echo -e "           Server: $BACKENDIP"
                         echo -e "           ID: $ID"
-                        echo -e "           Downtime: $BACKENDDOWNTIME"
+                        echo -e "           Downtime: $BACKENDDOWNTIME sec"
                         echo -e "           Health: \E[34m\E[1m[\E[31m $BACKENDSTATUS \E[34m]\E[0m"
                         _compile_upstream_stats
                 fi
@@ -205,8 +205,8 @@ _show_upstream_config () {
 
 ## Modify nginx backend status via upstream_conf-api
 _change_upstream_config () {
-        if [[ "$STATE" != "up" && "$STATE" != "down" ]]; then
-                echo -e "\E[33m\E[1m*  \E[0m Argument up/down needed for -m"
+        if [[ "$STATE" != "up" && "$STATE" != "down" && "$STATE" != "drain" ]]; then
+                echo -e "\E[33m\E[1m*  \E[0m Argument up/down/drain needed for -m"
                 exit 1
         fi
         ID=$NODEID
@@ -217,10 +217,12 @@ _change_upstream_config () {
                 echo "Use  "$(basename $0) -c upstream" to get nodeid"
                 exit 1
         fi
-        if [ "$(echo $BACKENDCONFIG | grep down -c)" = "0" ]; then
-                CSTATE=up
-        else 
-                CSTATE=down
+        if [ "$(echo $BACKENDCONFIG | egrep "down|drain" -c)" = "0" ]; then
+                CSTATE="up";
+        elif [ "$(echo $BACKENDCONFIG | grep "down" -c)" = "0" ]; then
+                CSTATE="drain";
+        else
+                CSTATE="down";
         fi
         if [ "$CSTATE" = "$STATE" ]; then
                 echo -e "\E[33m\E[1m*  \E[0m Cant change state, state allready $CSTATE"
@@ -241,7 +243,6 @@ _change_upstream_config () {
         exit 0
 }
 
-## Call _filthy_humans to calc traffic stats, and present http-stats from upstreams
 _compile_upstream_stats () {
         if [ "$UNODETXB" -le "1024" ];then
                 echo -e "           Traffic: RX none (passive node?)"
@@ -258,7 +259,7 @@ _compile_upstream_stats () {
         fi
 }
 
-## Call _filthy_humans and compile stats from serverzone statistics 
+## Compile stats fro serverzone statistics 
 _compile_serverzone_stats () {
                 echo -e "\E[32m\E[1m*  \E[0m \E[1mserverzone / $ZONE\E[0m"
         if [ "$SERVERZONETXB" -le "1024" ];then
@@ -282,8 +283,6 @@ _compile_serverzone_stats () {
                 echo -e "             HTTP 5xx: $SERVEZONE5xx"
         fi
 }
-
-## Aggregated function to show all zone stuff
 _status_all_server_zone () {
         for z in $(_get_server_zones); do
                 ZONE=$z
@@ -293,7 +292,6 @@ _status_all_server_zone () {
         done
 }
 
-## Function to show all zone stuff
 _show_server_zone_status () {
          for z in $ZONE; do
                 _get_server_zone_stat_traffic
@@ -302,7 +300,6 @@ _show_server_zone_status () {
         done
  }
 
-## Main loop go do validate stuff etc.
 _main () {
          if [ "$STATUS" = "1" ]; then
                 if [ ! -z "$ZONE" ]; then
@@ -356,10 +353,8 @@ _main () {
 
 }
 
-## Get options 
-
-_get_opts(){
-        while getopts ":h :l: :u: :c: :m: :n: :z: :live:" opt
+ _get_opts(){
+        while getopts ":h :l: :u: :c: :m: :n: :z: :w" opt
         do
                 case $opt in
                         h)
@@ -407,7 +402,7 @@ _get_opts(){
                         n)
                                 NODEID=$OPTARG
                         ;;
-                        live)
+                        w)
                                 LIVE=1
                         ;;
                         \?)
@@ -415,6 +410,12 @@ _get_opts(){
                         ;;
                 esac
         done
+        if [ "$LIVE" = "1" ]; then
+                while true; do 
+                        _main
+                done
+                exit 0
+        fi
         _main
 }
 
