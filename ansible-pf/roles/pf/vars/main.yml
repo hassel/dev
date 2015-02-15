@@ -1,3 +1,11 @@
 ---
-hipchat_api: 
-hipchat_token: 
+hipchat_room: AnsibleTest
+
+# Normaly you'd get the vars below
+# from earlier playbook 
+# host_var or group_var
+#
+# If not specify here
+#
+# hipchat_api: 
+# hipchat_token: 
