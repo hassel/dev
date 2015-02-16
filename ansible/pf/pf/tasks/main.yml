@@ -9,6 +9,7 @@
 - name: verifying packetfilter config
   command: /sbin/pfctl -nf {{ checkoutpath }}/pf.conf
   register: pfctl_command_result_parse
+  when: svn|changed
   failed_when: "'syntax error' in pfctl_command_result_parse.stderr"
   ignore_errors: true
   tags:
@@ -16,7 +17,7 @@
 
 
 - name: deploying packetfilter config
-  when: (pfctl_command_result_parse|success and svn|changed)
+  when: pfctl_command_result_parse|success
   command: /sbin/pfctl -f {{ checkoutpath }}/pf.conf
   register: pfctl_command_result_deploy
   failed_when: "'syntax error' in pfctl_command_result_deploy.stderr"
@@ -25,15 +26,15 @@
     - deploy-pf
 
 
-- hipchat: token={{ hipchat_token }} room='{{ hipchat_room }}' api={{ hipchat_api }} from="{{ inventory_hostname }}" msg="I just failed to parse pf.conf successfully, bailing out" validate_certs=no color=red
+- hipchat: token={{ hipchat_token }} room="{{ hipchat_room }}" api={{ hipchat_api }} from="{{ inventory_hostname }}" msg="I just failed to parse pf.conf successfully, bailing out" validate_certs=no color=red
   when: (pfctl_command_result_deploy|failed or pfctl_command_result_parse|failed)
   ignore_errors: yes
   tags:
     - deploy-pf
 
 
-- hipchat: token={{ hipchat_token }} room='{{ hipchat_room }}' api={{ hipchat_api }} from="{{ inventory_hostname  }}" msg="I just deployed a new pf.conf successfully, and it went ok" validate_certs=no color=green
-  when: (pfctl_command_result_deploy|success and pfctl_command_result_parse|success and svn|changed)
+- hipchat: token={{ hipchat_token }} room="{{ hipchat_room }}" api={{ hipchat_api }} from="{{ inventory_hostname  }}" msg="I just deployed a new pf.conf successfully, and it went ok" validate_certs=no color=green
+  when: (pfctl_command_result_deploy|success and pfctl_command_result_parse|success)
   ignore_errors: yes
   tags:
     - deploy-pf
