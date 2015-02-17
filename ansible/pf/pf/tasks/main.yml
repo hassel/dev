@@ -19,7 +19,7 @@
 - name: deploying packetfilter config
   when: pfctl_command_result_parse|success
   command: /sbin/pfctl -f {{ checkoutpath }}/pf.conf
-  register: pfctl_command_result_deploy
+  register: (pfctl_command_result_parse|success and svn|changed)
   failed_when: "'syntax error' in pfctl_command_result_deploy.stderr"
   ignore_errors: true
   tags:
