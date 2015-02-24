@@ -1,0 +1,12 @@
+  match monitoring-xml {
+    status 200;
+    header Content-Type = application/xml;
+    body !~ "varnish";
+    } 
+  
+  match monitoring-json {
+    header Content-Type = application/json;
+    status 200;
+    body !~ "varnish";
+    }  
+

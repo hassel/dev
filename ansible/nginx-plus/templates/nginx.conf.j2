@@ -1,0 +1,67 @@
+user  nginx;
+worker_processes  auto;
+master_process on;
+worker_rlimit_nofile 200000;
+worker_rlimit_core 20;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+  worker_connections  2048;
+  multi_accept on;
+  use epoll;
+  accept_mutex on;
+}
+
+
+http {
+  proxy_redirect              off;
+  ## Insert Headers
+  proxy_set_header            Host            $http_host;
+  proxy_set_header            X-Real-IP       $remote_addr;
+  proxy_set_header            X-Forwarded-For  $proxy_add_x_forwarded_for;
+  proxy_set_header            X-Forwarded-Proto https;
+  ## General normalization/prodection
+  client_body_buffer_size     128k;
+  client_header_buffer_size   64k;
+  proxy_buffer_size           16k;
+  proxy_buffers               64  32k;
+  proxy_busy_buffers_size     64k;
+  reset_timedout_connection on;
+  ssl_session_cache   shared:SSL:20m;
+  ssl_session_timeout 10m;
+
+
+  include {{ nginx_config_d }}/*.mon;
+  include {{ nginx_config_d }}/*.sfarm;
+  include {{ nginx_config_d }}/*.conf;
+
+  server {
+    listen {{ mgmt_addr }}:80;
+    listen 127.0.0.1:80;
+
+    location /api {
+      upstream_conf;
+      allow 127.0.0.1;
+{% for addr in api_acl %}
+      allow {{ addr }};
+{% endfor %}
+      deny all;
+    }
+
+    location /status {
+        status;
+        allow 127.0.0.1;
+{% for addr in monitor_acl %}
+        allow {{ addr }};
+{% endfor %}
+        deny all;
+    }
+
+    location = /status.html {
+      root /usr/share/nginx/html;
+    }
+  }
+}

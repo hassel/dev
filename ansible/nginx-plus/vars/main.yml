@@ -1,0 +1,75 @@
+---
+mgmt_addr: 10.10.10.10
+monitor_acl: 
+  - 10.10.10.0/24
+api_acl:
+  - 10.10.10.0/24
+
+vips:
+  vip-name-2: 
+    server_name: test0.vip.ldt
+    listen: 10.20.30.40
+    proto: 
+      - https
+      - http
+    ssl_crt: /etc/ssl/test.crt
+    ssl_key: /etc/ssl/test.key
+    ssl_staple: /etc/ssl/test.bundle.crt
+    probe: monitoring-json
+    probe_uri: /status
+    locations:
+      location_1:
+        context: /some_path/
+        backend: some_path_servers
+      location_2:
+        context: /foo_bar/
+        backend: foo_bar_servers
+
+  vip-name-1: 
+    server_name: test1.vip.ldt
+    listen: 10.20.30.41
+    proto: 
+      - https
+    ssl_crt: /etc/ssl/test.crt
+    ssl_key: /etc/ssl/test.key
+    ssl_staple: /etc/ssl/test.bundle.crt
+    probe: monitoring-xml
+    probe_uri: /offering/api/v2/kambi/group.json
+    locations:
+      location_1:
+        context: /foo/
+        backend: foo_bar_servers
+      location_2:
+        context: /bar/
+        backend: foo_bar_servers
+      location_3:
+        context: /some_other_path/
+        backend: app_servers
+      location_4:
+        context: /wierd_path/
+        backend: app_servers
+
+upstreams:
+  app_servers:
+    backends:
+      - 10.20.2.4:6081
+      - 10.20.2.5:6081
+    algo: ip_hash
+    probe: monitoring-xml
+
+  sfarm-offering:
+    backends:
+      - 10.20.2.2:6081
+      - 10.20.2.3:6081
+    algo: hash $request_uri
+    probe: monitoring-json
+
+probes:
+  monitoring-xml:
+    status: 200
+    header: Content-Type = application/xml
+    body: '!~ "varnish"'
+  monitoring-json:
+    status: 200
+    header: Content-Type = application/json
+    body: '!~ "varnish"'

@@ -1,0 +1,5 @@
+match {{ item.key }} {
+   status {{ probes[item.key].status }};
+   header {{ probes[item.key].header }};
+   body {{ probes[item.key].body }};
+}	
