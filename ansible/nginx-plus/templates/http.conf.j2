@@ -22,7 +22,6 @@ server {
   }
 {% endfor %}
   status_zone {{ vips[item.key].server_name }};
-
 {% elif protocol == 'http' %}
 server {
   listen {{ vips[item.key].listen }}:80; 
@@ -37,11 +36,10 @@ server {
   proxy_pass http://{{ value.backend }};
 {% if loop.first %}
   health_check interval=2s fails=2 passes=5 uri={{ vips[item.key].probe_uri }} match={{ vips[item.key].probe }};
-
 {% endif %} 
   }
 {% endfor %}
   status_zone {{ vips[item.key].server_name }}-{{ protocol }};
 {% endif %}
-{% endfor %}
 }
+{% endfor %}

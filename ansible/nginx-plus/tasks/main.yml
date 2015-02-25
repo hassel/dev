@@ -6,25 +6,39 @@
     - nginx-install
 
 - name: generate nginx core config
-  template: src=nginx.conf.j2 dest={{ nginx_config_d }}/nginx.conf
-  register: nginx.core
+  template: src=nginx.conf.j2 dest={{ nginx_d }}/nginx.conf
+  register: nginx_core
 
 - name: generate nginx http frontend config
-  template: src=http.conf.j2 dest={{ nginx_config_d }}/{{ item.key }}.conf
+  template: src=http.conf.j2 dest={{ nginx_conf_d }}/{{ item.key }}.conf
   with_dict: vips
-  register: nginx.frontend
+  register: nginx_frontend
   tags:
     - nginx-frontend
     - nginx
 
 - name: generate monitoring config
-  template: src=monitoring.j2 dest={{ nginx_config_d }}/{{ item.key }}.mon
+  template: src=monitoring.j2 dest={{ nginx_conf_d }}/{{ item.key }}.mon
   with_dict: probes
+  tags:
+    - nginx
+    - nginx-monitor
+
 
 - name: generate nginx backend config
-  template: src=upstream.sfarm.j2 dest={{ nginx_config_d }}/{{ item.key }}.sfarm
+  template: src=upstream.sfarm.j2 dest={{ nginx_conf_d }}/{{ item.key }}.sfarm
   with_dict: upstreams
-  register: nginx.upstream
+  register: nginx_upstream
   tags:
     - nginx-backend
     - nginx
+
+- name: check config syntax
+  command: /usr/sbin/nginx -c {{ nginx_d }}/nginx.conf -t
+  register: nginx_config_check
+  failed_when: "'emerg' in nginx_config_check.stderr"
+  notify: reload nginx 
+  when: (nginx_core|changed or nginx_frontend|changed or nginx_upstream|changed)
+
+- name: ensure nginx is running
+  service: name=nginx state=running enabled=yes

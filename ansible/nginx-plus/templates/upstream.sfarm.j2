@@ -1,6 +1,6 @@
 upstream {{ item.key }} {
-  zone: {{ item.key }}-dynamic 64k;
-  hash: {{ upstreams[item.key].algo }};
+  zone {{ item.key }}-dynamic 64k;
+  {{ upstreams[item.key].algo }};
   {% for host in upstreams[item.key].backends %}
 server {{ host }} fail_timeout=5 max_fails=2;
   {% endfor %}

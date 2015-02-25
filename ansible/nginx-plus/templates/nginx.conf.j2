@@ -34,9 +34,9 @@ http {
   ssl_session_timeout 10m;
 
 
-  include {{ nginx_config_d }}/*.mon;
-  include {{ nginx_config_d }}/*.sfarm;
-  include {{ nginx_config_d }}/*.conf;
+  include {{ nginx_conf_d }}/*.mon;
+  include {{ nginx_conf_d }}/*.sfarm;
+  include {{ nginx_conf_d }}/*.conf;
 
   server {
     listen {{ mgmt_addr }}:80;
