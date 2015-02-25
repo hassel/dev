@@ -57,12 +57,19 @@ upstreams:
     algo: ip_hash
     probe: monitoring-xml
 
-  sfarm-offering:
+  foo_bar_servers:
     backends:
       - 10.20.2.2:6081
       - 10.20.2.3:6081
     algo: hash $request_uri
     probe: monitoring-json
+
+  some_path_servers:
+    backends:
+      - 10.20.2.4:6081
+      - 10.20.2.5:6081
+    algo: ip_hash
+    probe: monitoring-xml
 
 probes:
   monitoring-xml:
