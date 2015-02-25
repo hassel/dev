@@ -1,2 +1,3 @@
 ---
-nginx_config_d: /etc/nginx/conf.d/
+nginx_d: /etc/nginx
+nginx_conf_d: /etc/nginx/conf.d
