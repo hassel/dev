@@ -34,7 +34,7 @@ vips:
     ssl_key: /etc/ssl/test.key
     ssl_staple: /etc/ssl/test.bundle.crt
     probe: monitoring-xml
-    probe_uri: /offering/api/v2/kambi/group.json
+    probe_uri: /status
     locations:
       location_1:
         context: /foo/
