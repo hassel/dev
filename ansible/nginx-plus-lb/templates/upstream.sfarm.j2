@@ -1,7 +1,10 @@
 upstream {{ item.key }} {
   zone {{ item.key }}-dynamic 64k;
   {{ upstreams[item.key].algo }};
-  {% for host in upstreams[item.key].backends %}
-server {{ host }} fail_timeout=5 max_fails=2;
-  {% endfor %}
+{% for host in upstreams[item.key].backends %}
+  server {{ host }} fail_timeout=15 max_fails=2;
+{% endfor %}
+{% if upstreams[item.key].prefix == 'sfarm' %}
+  keepalive 128;
+{% endif %}
 }

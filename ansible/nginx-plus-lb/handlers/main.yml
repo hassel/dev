@@ -1,10 +1,20 @@
 ---
 - name: reload nginx
   service: name=nginx state=reloaded
+  tags:
+    - nginx
+    - nginx-backend
+    - nginx-monitor
+    - nginx-frontend
+    - nginx-config
+    - reload
 
 - name: restart nginx
-  service: name=nginx state=reloaded
-
-- name: nginx check config 
-  command: nginx -c {{ nginx_d }}/nginx.conf -t
-  register: nginx.config.check
+  service: name=nginx state=restarted
+  tags:
+    - nginx
+    - nginx-backend
+    - nginx-monitor
+    - nginx-frontend
+    - nginx-config
+    - restart
