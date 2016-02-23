@@ -128,11 +128,11 @@ vips:
         - https
         - http
       prefix: conf
-      ssl_crt: /etc/ssl/wildcard_kambi_bundle.crt
-      ssl_key: /etc/ssl/wildcard_kambi_bundle.key
+      ssl_crt: /etc/ssl/wildcard_domain_bundle.crt
+      ssl_key: /etc/ssl/wildcard_domain_bundle.key
       ssl_staple: /etc/ssl/gd_bundle.crt
     probe: monitoring-json
-    probe_uri: /offering/api/v2/kambi/group.json
+    probe_uri: /offering/api/v2/domain/group.json
     locations:
       location_1:
         context: /crossdomain.xml
