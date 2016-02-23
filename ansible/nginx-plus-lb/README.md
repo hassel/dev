@@ -4,8 +4,8 @@
 > it should be located in /inventory/group_vars/group-name
  
 ## Group-specific vars
- site: location of the lb-cluster (sth, spp, daq, nos, sys, cph, bru, etc)
- machinetype: lb not used variable, but will be used later
+ site: location of the lb-cluster 
+ machinetype: lb 
  ciphers: cipher list
  sysctl: sysctl settings
 
