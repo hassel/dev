@@ -33,7 +33,7 @@ http {
   proxy_busy_buffers_size     64k;
 
   reset_timedout_connection on;
-  ssl_session_cache   shared:SSL:20m;
+  ssl_session_cache builtin shared:SSL:20m;
   ssl_session_timeout 10m;
   ssl_session_tickets off;
 
@@ -64,8 +64,7 @@ http {
 
 
   server {
-    listen {% if facter_ipaddress_bond0_100 is defined %}{{ facter_ipaddress_bond0_100 }}:80;{% elif facter_ipaddress_eth0_420 is defined  %}{{ facter_ipaddress_eth0_420 }}:80;{% else %}{{ facter_ipaddress_eth0 }}:80;{% endif %}
-
+    listen {{ ansible_eth0.ipv4.address }}:80;
     listen 127.0.0.1:80;
 
     location /api {
