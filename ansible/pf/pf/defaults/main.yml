@@ -1,6 +1,0 @@
----
-svnurl: 
-svnpath: 
-svnuser: 
-svnpass: 
-checkoutpath: /etc/{{ inventory_hostname }}
