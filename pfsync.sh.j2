@@ -1,0 +1,127 @@
+#!/bin/ksh
+# Carl 2015
+# bin
+CP=/bin/cp
+SCP=/usr/bin/scp
+SSH=/usr/bin/ssh
+PF=/sbin/pfctl
+SED=/usr/bin/sed
+# var
+USER=kmbops
+RHOST={{ back2backs[0]['pfsync_r'] }}
+{% raw %}
+## raw escapes everything below. 
+RCMD="export TERM=xterm-256color && doas /root/bin/pfsync.sh -d"
+DEST=/tmp
+ETC=/etc
+PFCONF=pf.conf
+PFCONFS=pf.conf*
+KEY=/root/.ssh/pf_sync
+BACKUP=/var/backups/pf.conf_`date +%y%m%d-%H%M%S`
+
+## Functions
+
+function _logger {
+        MSG=$@
+        if [ -z "$STATUS" ]; then
+            printf "%s * $MSG\n"
+        else
+            let column=$(tput cols)-${#MSG}-${#STATUS}-20
+            printf "%s * $MSG %s%${column}s $STATUS\n"
+        fi
+}
+
+function _exit_status {
+        if [ "$?" -ge "1" ] ; then
+                STATUS="[ !! ]"
+                _die
+        else
+                STATUS="[ ok ]"
+        fi
+}
+
+function _die  {
+        exit 99
+}
+
+function _r_move_pf_config {
+        ## Copy pf rulesets to remote host via scp
+        STATUS="[ Running ]"
+        _logger _r_move_pf_config
+        $SCP -i $KEY $ETC/$PFCONFS $USER@$RHOST:$DEST 2>&1 >/dev/null
+        _exit_status
+        _logger "$SCP -i $KEY $ETC/$PFCONFS $USER@$RHOST:$DEST"
+}
+function _deploy_remote_pf_config {
+        ## Run pfsync.sh in deploy mode (-d) on remote host
+        STATUS="[ Running ]"
+        _logger _deploy_remote_pf_config
+        $SSH -i $KEY $USER@$RHOST $RCMD 2>&1 >/dev/null
+        _exit_status
+        _logger "$SSH -i $KEY $USER@$RHOST $RCMD"
+}
+function _parse_local_pf_config {
+        ## Do a syntax check of the files by piping to pfctl
+        STATUS="[ Running ]"
+        _logger _parse_local_pf_config
+        # We need to replace etc with tmp else includes won't parse. Necessary
+        # because we're testing files that have just been copied in tmp.
+        $SED s/\\/etc/\\/tmp/g $DEST/$PFCONFS | $PF -nf -
+        _exit_status
+        _logger '$SED s/\\/etc/\\/tmp/g $DEST/$PFCONFS | $PF -nf -'
+
+        ## And make a backup for each pf ruleset file by adding random and date
+        ## to namefile
+        cd $ETC
+        for PFBACKUP in $(ls $PFCONFS); do
+            BACKUP=/var/backups/$PFBACKUP.$RANDOM.`date +%y%m%d-%H%M%S`
+            $CP $ETC/$PFBACKUP $BACKUP 2>&1 >/dev/null
+            _exit_status
+            _logger "$CP $PFBACKUP $BACKUP"
+        done
+}
+
+function _move_pf_config {
+        ## Move pf-configs from tmp folder to etc
+        STATUS="[ Running ]"
+        _logger _move_pf_config
+        $CP $DEST/$PFCONFS $ETC 2>&1 >/dev/null
+        _exit_status
+        _logger "$CP $DST/$PFCONFS /etc/"
+}
+
+function _deploy_pf_config {
+        ## Deploy main ruleset file
+        STATUS="[ Running ]"
+        _logger _deploy_pf_config
+        $PF -f $ETC/$PFCONF 2>&1 >/dev/null
+        _exit_status
+        _logger "$PF -f $ETC/$PFCONF"
+}
+
+function _get_options {
+        # print options for screen
+        while getopts ":r :d :" opt
+        do
+                case $opt in
+                        r)
+                        _r_move_pf_config
+                        _deploy_remote_pf_config
+                        exit 0
+                        ;;
+                        d)
+                        _parse_local_pf_config
+                        _move_pf_config
+                        _deploy_pf_config
+                        exit 0
+                        ;;
+                esac
+        done
+}
+
+if [ "$#" -lt 1 ]; then
+        $0 -r
+        else
+        _get_options $1
+fi
+{% endraw %}
